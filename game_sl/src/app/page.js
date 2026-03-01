@@ -4,11 +4,13 @@ import { Download, X } from 'lucide-react';
 import useGameStore from '@/store/useGameStore';
 import InitProfile from '@/components/home/InitProfile';
 import Dashboard from '@/components/home/Dashboard';
+import { UserPlus, Trash2, Settings2 } from 'lucide-react';
 
 export default function HomePage() {
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [showInstallBanner, setShowInstallBanner] = useState(false);
   const isInitialized = useGameStore((state) => state.isInitialized);
+  const { createNewCharacter, resetAllData } = useGameStore();
 
   useEffect(() => {
     // 监听浏览器的安装提示事件
@@ -68,6 +70,26 @@ export default function HomePage() {
       ) : (
         <Dashboard />
       )}
+
+      {/* 系统管理区域 */}
+      <div className="mt-12 p-6 bg-white rounded-[32px] border border-slate-100">
+        <h3 className="text-slate-900 font-black flex items-center gap-2 mb-6">
+          <Settings2 size={20} /> 系统管理
+        </h3>
+        
+        <div className="grid grid-cols-2 gap-4">
+
+          {/* 清除缓存按钮 */}
+          <button
+            onClick={resetAllData}
+            className="flex flex-col items-center justify-center p-4 bg-red-50 text-red-600 rounded-2xl hover:bg-red-100 transition-all border-2 border-transparent active:border-red-300"
+          >
+            <Trash2 className="mb-2" />
+            <span className="text-xs font-bold">清除所有数据</span>
+          </button>
+        </div>
+      </div>
+
     </div>
   );
 }

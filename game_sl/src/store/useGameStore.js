@@ -479,6 +479,15 @@ const useGameStore = create(
         user: { ...userData, level: 1, exp: 0, nextLevelExp: 100, gold: 0, stats: { todayCompleted: 0, totalCompleted: 0, highestSkill: "无" } },
         isInitialized: true 
       }),
+
+
+      // 2. 清除所有数据 (彻底重置回初始状态)
+      resetAllData: () => {
+        if (confirm("确定要永久清除所有进度、金币和成就吗？此操作无法撤销。")) {
+          localStorage.clear(); // 如果你使用了 persist 中间件，这会确保缓存也被清空
+          window.location.reload(); // 刷新页面以确保状态完全同步
+        }
+      }
     }),
     {
       name: 'game-life-storage',

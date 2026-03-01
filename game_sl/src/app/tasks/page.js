@@ -24,7 +24,7 @@ export default function TaskHall() {
           onClick={() => setModalOpen(true)}
           className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-2xl font-bold flex items-center gap-2 shadow-lg shadow-indigo-100 transition-all active:scale-95"
         >
-          <Plus size={20} /> 发布任务
+          <Plus size={20} /> 创建任务
         </button>
       </div>
 
@@ -57,7 +57,7 @@ export default function TaskHall() {
                   <Sword size={24} />
                 </div>
                 <div>
-                  <h3 className={`font-bold text-lg ${task.status === 'archived' ? 'line-through text-slate-400' : ''}`}>
+                  <h3 className={`font-bold text-lg ${task.status === 'archived' ? 'line-through  text-slate-500' : 'text-slate-500'}`}>
                     {task.title}
                   </h3>
                   <div className="flex flex-wrap gap-2 mt-2">
