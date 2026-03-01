@@ -5,7 +5,7 @@ import { Sword, User, ShoppingBag, Trophy } from 'lucide-react';
 import { clsx } from 'clsx';
 
 const navLinks = [
-  { name: '任务', href: '/tasks', icon: Sword },
+  { name: '首页', href: '/', icon: Sword },
   { name: '技能', href: '/skills', icon: User },
   { name: '商店', href: '/shop', icon: ShoppingBag },
   { name: '成就', href: '/archive', icon: Trophy },
