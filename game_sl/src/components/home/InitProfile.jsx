@@ -33,25 +33,25 @@ export default function InitProfile() {
         {/* 右侧：表单 */}
         <div className="flex-[1.5] space-y-4">
           <input 
-            className="w-full p-3 rounded-xl border-2 border-slate-100 focus:border-indigo-400 outline-none" 
+            className="w-full p-3 rounded-xl border-2 border-slate-100  text-slate-900 placeholder:text-slate-300 focus:border-indigo-400 outline-none" 
             placeholder="输入你的勇者名..."
             onChange={(e) => setFormData({...formData, name: e.target.value})}
           />
           <div className="flex gap-2">
             <button 
               onClick={() => setFormData({...formData, gender: 'male'})}
-              className={`flex-1 p-2 rounded-lg border-2 ${formData.gender === 'male' ? 'border-blue-500 bg-blue-50' : 'border-slate-100'}`}
+              className={`flex-1 p-2 rounded-lg border-2 ${formData.gender === 'male' ? 'border-blue-500 bg-blue-50 text-slate-900' : 'border-slate-100'}`}
             >男</button>
             <button 
               onClick={() => setFormData({...formData, gender: 'female'})}
-              className={`flex-1 p-2 rounded-lg border-2 ${formData.gender === 'female' ? 'border-pink-500 bg-pink-50' : 'border-slate-100'}`}
+              className={`flex-1 p-2 rounded-lg border-2 ${formData.gender === 'female' ? 'border-pink-500 bg-pink-50 text-slate-900' : 'border-slate-100'}`}
             >女</button>
           </div>
           <div className="grid grid-cols-2 gap-2">
-            <input className="p-3 rounded-xl border-2 border-slate-100" placeholder="年龄" type="number" onChange={(e) => setFormData({...formData, age: e.target.value})}/>
-            <input className="p-3 rounded-xl border-2 border-slate-100" placeholder="星座(选)" onChange={(e) => setFormData({...formData, constellation: e.target.value})}/>
+            <input className="p-3 rounded-xl border-2 text-slate-900 placeholder:text-slate-300 border-slate-100" placeholder="年龄" type="number" onChange={(e) => setFormData({...formData, age: e.target.value})}/>
+            <input className="p-3 rounded-xl border-2 text-slate-900 placeholder:text-slate-300 border-slate-100" placeholder="星座(选)" onChange={(e) => setFormData({...formData, constellation: e.target.value})}/>
           </div>
-          <input className="w-full p-3 rounded-xl border-2 border-slate-100" placeholder="当前职业(选)" onChange={(e) => setFormData({...formData, job: e.target.value})}/>
+          <input className="w-full p-3 rounded-xl border-2 text-slate-900 placeholder:text-slate-300 border-slate-100" placeholder="当前职业(选)" onChange={(e) => setFormData({...formData, job: e.target.value})}/>
           
           <button 
             onClick={() => initializeUser(formData)}
