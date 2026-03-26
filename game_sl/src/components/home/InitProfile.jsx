@@ -1,13 +1,25 @@
 "use client";
 import { useState } from 'react';
 import useGameStore from '@/store/useGameStore';
-import { User, UserFemale, Sparkles } from 'lucide-react'; // 假设使用图标代替
+import { User, UserRound, Sparkles } from 'lucide-react';
 
 export default function InitProfile() {
   const initializeUser = useGameStore((state) => state.initializeUser);
   const [formData, setFormData] = useState({
     name: '', gender: 'male', age: '', job: '', constellation: ''
   });
+  const [avatarSeed, setAvatarSeed] = useState(() => {
+    try {
+      return crypto.randomUUID();
+    } catch {
+      return String(Math.random()).slice(2);
+    }
+  });
+  const [avatarLoaded, setAvatarLoaded] = useState(false);
+
+  const avatarUrl = `https://api.dicebear.com/7.x/pixel-art/svg?seed=${encodeURIComponent(
+    `${formData.gender}-${avatarSeed}`
+  )}`;
 
   return (
     <div className="w-full max-w-2xl bg-white rounded-3xl shadow-2xl p-8 border-4 border-indigo-100">
@@ -19,15 +31,49 @@ export default function InitProfile() {
         {/* 左侧：人物预览 */}
         <div className="flex-1 flex flex-col items-center justify-center bg-slate-50 placeholder:text-slate-300 rounded-2xl p-6 border-2 border-dashed border-slate-200">
           <div className="w-48 h-48 relative transition-all duration-500 transform hover:scale-105">
-            {/* 根据性别切换占位图 */}
-            <img 
-              src={formData.gender === 'male' ? '/avatars/male_hero.png' : '/avatars/female_hero.png'} 
+            {/* 快速占位：避免网络头像加载前空白 */}
+            {!avatarLoaded && (
+              <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-indigo-200 via-slate-100 to-amber-100 border border-white/60 flex items-center justify-center">
+                {formData.gender === 'male' ? (
+                  <User size={72} className="text-slate-500/70" />
+                ) : (
+                  <UserRound size={72} className="text-slate-500/70" />
+                )}
+              </div>
+            )}
+
+            <img
+              key={avatarUrl}
+              src={avatarUrl}
               alt="Character"
-              className="w-full h-full object-contain"
-              onError={(e) => { e.target.src = "https://api.dicebear.com/7.x/pixel-art/svg?seed=" + formData.gender }}
+              className={`w-full h-full object-contain rounded-3xl ${avatarLoaded ? 'opacity-100' : 'opacity-0'} transition-opacity duration-200`}
+              onLoad={() => setAvatarLoaded(true)}
+              onError={() => setAvatarLoaded(false)}
+              loading="eager"
+              decoding="async"
             />
           </div>
-          <p className="mt-4 font-bold text-slate-500">角色预检完成</p>
+          <div className="mt-4 w-full flex flex-col items-center gap-2">
+            <p className="font-bold text-slate-500">角色预览</p>
+            <button
+              type="button"
+              onClick={() => {
+                setAvatarLoaded(false);
+                try {
+                  setAvatarSeed(crypto.randomUUID());
+                } catch {
+                  setAvatarSeed(String(Math.random()).slice(2));
+                }
+              }}
+              className="w-full py-2 rounded-xl bg-white border border-slate-200 text-slate-700 font-black flex items-center justify-center gap-2 hover:bg-slate-50 transition-all"
+            >
+              <Sparkles size={16} />
+              随机角色
+            </button>
+            <p className="text-[10px] text-slate-400 font-bold text-center">
+              不满意就点一下重新生成
+            </p>
+          </div>
         </div>
 
         {/* 右侧：表单 */}
@@ -39,11 +85,17 @@ export default function InitProfile() {
           />
           <div className="flex gap-2">
             <button 
-              onClick={() => setFormData({...formData, gender: 'male'})}
+              onClick={() => {
+                setAvatarLoaded(false);
+                setFormData({ ...formData, gender: 'male' });
+              }}
               className={`flex-1 p-2 rounded-lg border-2 ${formData.gender === 'male' ? 'border-blue-500 bg-blue-50 text-slate-900' : 'border-slate-100'}`}
             >男</button>
             <button 
-              onClick={() => setFormData({...formData, gender: 'female'})}
+              onClick={() => {
+                setAvatarLoaded(false);
+                setFormData({ ...formData, gender: 'female' });
+              }}
               className={`flex-1 p-2 rounded-lg border-2 ${formData.gender === 'female' ? 'border-pink-500 bg-pink-50 text-slate-900' : 'border-slate-100'}`}
             >女</button>
           </div>
