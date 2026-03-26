@@ -17,7 +17,7 @@ export default function Navigation() {
   return (
     <>
       {/* 桌面端侧边栏 */}
-      <nav className="hidden md:flex flex-col w-64 bg-white border-r p-6 fixed h-full">
+      <nav className="hidden md:flex flex-col w-64 bg-white border-r p-6 h-screen">
         <div className="text-2xl font-black text-indigo-600 mb-10 tracking-tighter">GAME LIFE</div>
         <div className="space-y-2">
           {navLinks.map((link) => (

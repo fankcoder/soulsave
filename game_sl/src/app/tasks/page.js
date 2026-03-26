@@ -76,7 +76,7 @@ export default function TaskHall() {
                   onClick={() => claimTaskReward(task.id)}
                   className={`px-4 py-2 rounded-xl font-bold transition-all ${task.status === 'completed' ? 'bg-green-500 text-white' : 'bg-slate-100 text-slate-400 hover:bg-indigo-100 hover:text-indigo-600'}`}
                 >
-                  {task.status === 'completed' ? '领取奖励' : '完成任务'}
+                  {task.status === 'completed' ? '归档' : '完成任务'}
                 </button>
               )}
             </div>

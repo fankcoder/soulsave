@@ -291,12 +291,113 @@ const useGameStore = create(
         const task = state.tasks.find(t => t.id === taskId);
         if (!task) return state;
 
-        // 触发之前定义的 addProgress(exp, gold)
-        // 逻辑：更新 user 状态并把该 task 状态设为 archived
-        const updatedTasks = state.tasks.map(t => 
-          t.id === taskId ? { ...t, status: 'archived', finishedAt: new Date().toISOString() } : t
-        );
-        
+        const now = new Date().toISOString();
+
+        // 状态机：
+        // pending(待完成) -> completed(已完成，待归档)
+        // completed(已完成) -> archived(已归档/历史)
+        // 说明：为了匹配当前 UI（一次点击“完成任务”就应看到仪表盘变化），
+        // 奖励与完成计数在 pending -> completed 时发放；归档只改变 tasks 状态。
+        const updatedTasks = state.tasks.map(t => {
+          if (t.id !== taskId) return t;
+
+          if (t.status === 'completed') {
+            return { ...t, status: 'archived' };
+          }
+
+          // 兼容老数据：没有 status 或 status 非预期时，当作 pending 处理
+          if (!t.status || t.status === 'pending') {
+            return { ...t, status: 'completed', finishedAt: now };
+          }
+
+          return t;
+        });
+
+        // pending -> completed：发放经验/金币/技能经验 + 更新完成计数
+        if (!task.status || task.status === 'pending') {
+          let { exp, level, nextLevelExp, gold } = state.user;
+          const expGain = Number(task.exp) || 0;
+          const goldGain = Number(task.gold) || 0;
+          const skillId = task.skillId;
+
+          const newSkills = [...state.skills];
+
+          // 1) 更新全局经验和金币
+          exp += expGain;
+          gold += goldGain;
+          while (exp >= nextLevelExp) {
+            exp -= nextLevelExp;
+            level += 1;
+            nextLevelExp = Math.floor(100 * Math.pow(level, 1.5));
+          }
+
+          // 2) 更新特定技能经验（兼容 currentExp/exp 两种字段）
+          const skillIndex = newSkills.findIndex(s => s.id === skillId);
+          if (skillIndex !== -1) {
+            const skill = newSkills[skillIndex];
+            const skillLevel0 = Number(skill.level) || 1;
+            let skillNextLevelExp = Number(skill.nextLevelExp);
+            if (!Number.isFinite(skillNextLevelExp)) {
+              skillNextLevelExp = Math.floor(100 * Math.pow(skillLevel0, 1.5));
+            }
+
+            let currentExp = Number(skill.currentExp);
+            if (!Number.isFinite(currentExp)) {
+              currentExp = Number(skill.exp) || 0;
+            }
+
+            currentExp += expGain;
+            let skillLevel = skillLevel0;
+
+            while (currentExp >= skillNextLevelExp) {
+              currentExp -= skillNextLevelExp;
+              skillLevel += 1;
+              skillNextLevelExp = Math.floor(100 * Math.pow(skillLevel, 1.5));
+            }
+
+            newSkills[skillIndex] = {
+              ...skill,
+              level: skillLevel,
+              currentExp,
+              nextLevelExp: skillNextLevelExp,
+              // 保留老字段，避免已持久化数据与旧 UI/逻辑不一致
+              exp: currentExp,
+            };
+          }
+
+          const today = new Date().toLocaleDateString();
+          const prevLast = state.user.stats?.lastCompletedDate;
+          const resetToday = prevLast !== today;
+
+          const todayCompleted = resetToday ? 0 : (state.user.stats?.todayCompleted || 0);
+          const totalCompleted = (state.user.stats?.totalCompleted || 0) + 1;
+
+          const highestSkillLevel = newSkills.reduce((max, s) => {
+            const lv = Number(s.level) || 0;
+            return lv > max ? lv : max;
+          }, 0);
+
+          return {
+            tasks: updatedTasks,
+            user: {
+              ...state.user,
+              exp,
+              level,
+              nextLevelExp,
+              gold,
+              stats: {
+                ...state.user.stats,
+                todayCompleted: todayCompleted + 1,
+                totalCompleted,
+                highestSkill: highestSkillLevel,
+                lastCompletedDate: today,
+              },
+            },
+            skills: newSkills,
+          };
+        }
+
+        // completed -> archived：仅归档
         return { tasks: updatedTasks };
       }),
       // 核心方法：完成任务领奖
@@ -316,12 +417,35 @@ const useGameStore = create(
         // 2. 更新特定技能经验
         const skillIndex = newSkills.findIndex(s => s.id === skillId);
         if (skillIndex !== -1) {
-          newSkills[skillIndex].exp += expGain;
-          // 简易技能升级逻辑
-          if (newSkills[skillIndex].exp >= 100) {
-             newSkills[skillIndex].level += 1;
-             newSkills[skillIndex].exp = 0;
+          const skill = newSkills[skillIndex];
+          const skillLevel0 = Number(skill.level) || 1;
+          let skillNextLevelExp = Number(skill.nextLevelExp);
+          if (!Number.isFinite(skillNextLevelExp)) {
+            skillNextLevelExp = Math.floor(100 * Math.pow(skillLevel0, 1.5));
           }
+
+          let currentExp = Number(skill.currentExp);
+          if (!Number.isFinite(currentExp)) {
+            currentExp = Number(skill.exp) || 0;
+          }
+
+          currentExp += expGain;
+          let skillLevel = skillLevel0;
+
+          while (currentExp >= skillNextLevelExp) {
+            currentExp -= skillNextLevelExp;
+            skillLevel += 1;
+            skillNextLevelExp = Math.floor(100 * Math.pow(skillLevel, 1.5));
+          }
+
+          newSkills[skillIndex] = {
+            ...skill,
+            level: skillLevel,
+            currentExp,
+            nextLevelExp: skillNextLevelExp,
+            // 保留老字段
+            exp: currentExp,
+          };
         }
 
         return { 
@@ -474,9 +598,101 @@ const useGameStore = create(
           ]
         }));
       },
+
+      // =========================
+      // 数据导入 / 导出（跨端同步）
+      // =========================
+      exportGameData: () => {
+        const state = get();
+        return {
+          version: 1,
+          exportedAt: new Date().toISOString(),
+          data: {
+            user: state.user,
+            tasks: state.tasks,
+            skills: state.skills,
+            rewards: state.rewards,
+            achievements: state.achievements,
+          },
+        };
+      },
+
+      importGameData: (raw) => {
+        try {
+          if (!raw) return false;
+
+          const payload = raw.data ? raw : { data: raw };
+          const data = payload.data || {};
+
+          const tasks = Array.isArray(data.tasks) ? data.tasks : null;
+          const skills = Array.isArray(data.skills) ? data.skills : null;
+          const user = data.user && typeof data.user === 'object' ? data.user : null;
+
+          // rewards/achievements 允许缺失（用当前状态兜底）
+          const rewards = Array.isArray(data.rewards) ? data.rewards : null;
+          const achievements = Array.isArray(data.achievements) ? data.achievements : null;
+
+          if (!user || !tasks || !skills) return false;
+
+          // 基础校验：task 必须有 id
+          const cleanedTasks = tasks.filter(t => t && typeof t === 'object' && t.id);
+          const cleanedSkills = skills.filter(s => s && typeof s === 'object' && s.id);
+
+          if (cleanedTasks.length === 0 || cleanedSkills.length === 0) return false;
+
+          const today = new Date().toLocaleDateString();
+          let todayCompleted = 0;
+          let totalCompleted = 0;
+
+          for (const t of cleanedTasks) {
+            if ((t.status === 'completed' || t.status === 'archived') && t.finishedAt) {
+              totalCompleted += 1;
+              const finishedDay = new Date(t.finishedAt).toLocaleDateString();
+              if (finishedDay === today) todayCompleted += 1;
+            }
+          }
+
+          const highestSkillLevel = cleanedSkills.reduce((max, s) => {
+            const lv = Number(s.level) || 0;
+            return lv > max ? lv : max;
+          }, 0);
+
+          set((state) => ({
+            ...state,
+            isInitialized: true,
+            user: {
+              ...state.user,
+              ...user,
+              stats: {
+                todayCompleted,
+                totalCompleted,
+                highestSkill: highestSkillLevel,
+                lastCompletedDate: totalCompleted > 0 ? today : '',
+              },
+            },
+            tasks: cleanedTasks,
+            skills: cleanedSkills,
+            rewards: rewards || state.rewards,
+            achievements: achievements || state.achievements,
+          }));
+
+          return true;
+        } catch (e) {
+          console.error('importGameData failed:', e);
+          return false;
+        }
+      },
+
       // 初始化角色方法
       initializeUser: (userData) => set({ 
-        user: { ...userData, level: 1, exp: 0, nextLevelExp: 100, gold: 0, stats: { todayCompleted: 0, totalCompleted: 0, highestSkill: "无" } },
+        user: { 
+          ...userData, 
+          level: 1, 
+          exp: 0, 
+          nextLevelExp: 100, 
+          gold: 0, 
+          stats: { todayCompleted: 0, totalCompleted: 0, highestSkill: "无", lastCompletedDate: "" } 
+        },
         isInitialized: true 
       }),
 
@@ -485,7 +701,8 @@ const useGameStore = create(
       resetAllData: () => {
         if (confirm("确定要永久清除所有进度、金币和成就吗？此操作无法撤销。")) {
           localStorage.clear(); // 如果你使用了 persist 中间件，这会确保缓存也被清空
-          window.location.reload(); // 刷新页面以确保状态完全同步
+          // persist 使用的是 localforage（IndexedDB），需要一起清理
+          localforage.clear().finally(() => window.location.reload()); // 刷新页面以确保状态完全同步
         }
       }
     }),

@@ -1,16 +1,17 @@
 "use client";
-import React, { useState, useEffect } from 'react';
-import { Download, X } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Download, X, Upload } from 'lucide-react';
 import useGameStore from '@/store/useGameStore';
 import InitProfile from '@/components/home/InitProfile';
 import Dashboard from '@/components/home/Dashboard';
-import { UserPlus, Trash2, Settings2 } from 'lucide-react';
+import { Trash2, Settings2 } from 'lucide-react';
 
 export default function HomePage() {
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [showInstallBanner, setShowInstallBanner] = useState(false);
   const isInitialized = useGameStore((state) => state.isInitialized);
-  const { createNewCharacter, resetAllData } = useGameStore();
+  const { resetAllData, exportGameData, importGameData } = useGameStore();
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
     // 监听浏览器的安装提示事件
@@ -78,8 +79,7 @@ export default function HomePage() {
         </h3>
         
         <div className="grid grid-cols-2 gap-4">
-
-          {/* 清除缓存按钮 */}
+          {/* 清除所有数据 */}
           <button
             onClick={resetAllData}
             className="flex flex-col items-center justify-center p-4 bg-red-50 text-red-600 rounded-2xl hover:bg-red-100 transition-all border-2 border-transparent active:border-red-300"
@@ -87,7 +87,65 @@ export default function HomePage() {
             <Trash2 className="mb-2" />
             <span className="text-xs font-bold">清除所有数据</span>
           </button>
+
+          {/* 导出数据 */}
+          <button
+            onClick={() => {
+              const payload = exportGameData();
+              const text = JSON.stringify(payload, null, 2);
+              const blob = new Blob([text], { type: 'application/json;charset=utf-8' });
+              const url = URL.createObjectURL(blob);
+
+              const a = document.createElement('a');
+              const date = new Date().toISOString().slice(0, 10);
+              a.href = url;
+              a.download = `gamelife-export-${date}.json`;
+              a.click();
+              URL.revokeObjectURL(url);
+            }}
+            className="flex flex-col items-center justify-center p-4 bg-indigo-50 text-indigo-700 rounded-2xl hover:bg-indigo-100 transition-all border-2 border-transparent active:border-indigo-300"
+          >
+            <Download className="mb-2" />
+            <span className="text-xs font-bold">导出数据(JSON)</span>
+          </button>
+
+          {/* 导入数据 */}
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            className="flex flex-col items-center justify-center p-4 bg-slate-50 text-slate-700 rounded-2xl hover:bg-slate-100 transition-all border-2 border-transparent active:border-slate-300"
+          >
+            <Upload className="mb-2" />
+            <span className="text-xs font-bold">导入数据(JSON)</span>
+          </button>
         </div>
+
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="application/json,.json"
+          className="hidden"
+          onChange={async (e) => {
+            const file = e.target.files?.[0];
+            if (!file) return;
+
+            try {
+              const text = await file.text();
+              const json = JSON.parse(text);
+              const ok = importGameData(json);
+              if (!ok) {
+                alert('导入失败：JSON 格式不正确或缺少必要字段。');
+                return;
+              }
+              alert('导入成功：数据已覆盖到当前设备。');
+              window.location.reload();
+            } catch (err) {
+              console.error(err);
+              alert('导入失败：无法解析 JSON。');
+            } finally {
+              e.target.value = '';
+            }
+          }}
+        />
       </div>
 
     </div>

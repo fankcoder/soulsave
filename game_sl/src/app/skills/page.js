@@ -39,7 +39,11 @@ export default function SkillTree() {
         ) : (
           skills.map((skill) => {
             const config = CATEGORY_MAP[skill.category] || CATEGORY_MAP['生活技能'];
-            const progress = (skill.currentExp / skill.nextLevelExp) * 100;
+            const currentExp = skill.currentExp ?? skill.exp ?? 0;
+            const nextLevelExp =
+              skill.nextLevelExp ??
+              Math.floor(100 * Math.pow(Number(skill.level) || 1, 1.5));
+            const progress = nextLevelExp > 0 ? (currentExp / nextLevelExp) * 100 : 0;
 
             return (
               <div key={skill.id} className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
@@ -55,14 +59,14 @@ export default function SkillTree() {
 
                 <h3 className="text-lg font-bold text-slate-800 mb-1">{skill.name}</h3>
                 <p className="text-xs text-slate-500 mb-4 flex items-center gap-1">
-                  <TrendingUp size={12} /> 考核: {skill.assessment}
+                  <TrendingUp size={12} /> 考核: {skill.assessment || '未设置'}
                 </p>
 
                 {/* 进度条 */}
                 <div className="space-y-2">
                   <div className="flex justify-between text-xs font-bold">
-                    <span className="text-indigo-500">EXP {skill.currentExp}</span>
-                    <span className="text-slate-300">{skill.nextLevelExp}</span>
+                    <span className="text-indigo-500">EXP {currentExp}</span>
+                    <span className="text-slate-300">{nextLevelExp}</span>
                   </div>
                   <div className="h-3 bg-slate-100 rounded-full overflow-hidden">
                     <div 

@@ -64,7 +64,7 @@ export default function Dashboard() {
       {/* 创建任务大按钮 */}
       <Link href="/tasks" className="flex items-center justify-center gap-2 w-full py-6 bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-3xl font-black text-xl shadow-xl hover:shadow-indigo-200 transition-all active:scale-95">
         <Plus size={28} />
-        创建新任务
+        任务大厅
       </Link>
 
       {/* 最近成就 */}
