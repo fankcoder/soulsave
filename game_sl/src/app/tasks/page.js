@@ -3,9 +3,11 @@ import { useState } from 'react';
 import useGameStore from '@/store/useGameStore';
 import { Plus, CheckCircle2, Circle, Clock, Sword, Star, Trophy, Trash2 } from 'lucide-react';
 import TaskModal from '@/components/tasks/TaskModal';
+import useIsMobile from '@/hooks/useIsMobile';
+import useLongPress from '@/hooks/useLongPress';
 
 export default function TaskHall() {
-  const { tasks, claimTaskReward } = useGameStore();
+  const { tasks, claimTaskReward, deleteTask } = useGameStore();
   const [isModalOpen, setModalOpen] = useState(false);
   const [filter, setFilter] = useState('active'); // active, history
 
@@ -47,50 +49,101 @@ export default function TaskHall() {
       {/* 任务列表区 */}
       <div className="grid gap-4">
         {(filter === 'active' ? activeTasks : historyTasks).map((task) => (
-          <div 
-            key={task.id} 
-            className={`group relative bg-white p-5 rounded-2xl border transition-all hover:shadow-md ${task.status === 'completed' ? 'border-green-200 bg-green-50' : 'border-slate-100'}`}
-          >
-            <div className="flex justify-between items-start">
-              <div className="flex gap-4">
-                <div className={`p-3 rounded-xl ${getTypeColor(task.type)}`}>
-                  <Sword size={24} />
-                </div>
-                <div>
-                  <h3 className={`font-bold text-lg ${task.status === 'archived' ? 'line-through  text-slate-500' : 'text-slate-500'}`}>
-                    {task.title}
-                  </h3>
-                  <div className="flex flex-wrap gap-2 mt-2">
-                    <Badge icon={Star} text={`${task.difficulty} | ${task.skill}`} color="bg-amber-50 text-amber-600" />
-                    <Badge icon={Clock} text={task.deadline || '无期限'} color="bg-slate-50 placeholder:text-slate-300 text-slate-500" />
-                    <span className="text-xs font-bold text-indigo-500 bg-indigo-50 px-2 py-1 rounded">
-                      EXP +{task.exp} | GOLD +{task.gold}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* 操作按钮 */}
-              {filter === 'active' && (
-                <button 
-                  onClick={() => claimTaskReward(task.id)}
-                  className={`px-4 py-2 rounded-xl font-bold transition-all ${task.status === 'completed' ? 'bg-green-500 text-white' : 'bg-slate-100 text-slate-400 hover:bg-indigo-100 hover:text-indigo-600'}`}
-                >
-                  {task.status === 'completed' ? '归档' : '完成任务'}
-                </button>
-              )}
-            </div>
-            {task.finishedAt && (
-              <div className="mt-3 pt-3 border-t border-dashed border-slate-200 text-xs text-slate-400">
-                完成时间：{new Date(task.finishedAt).toLocaleString()}
-              </div>
-            )}
-          </div>
+          <TaskCard
+            key={task.id}
+            task={task}
+            deletable={filter === 'active'}
+            onClaim={() => claimTaskReward(task.id)}
+            onDelete={() => deleteTask(task.id)}
+          />
         ))}
       </div>
 
       {/* 创建任务模态框 */}
       <TaskModal isOpen={isModalOpen} onClose={() => setModalOpen(false)} />
+    </div>
+  );
+}
+
+function TaskCard({ task, deletable, onClaim, onDelete }) {
+  const isMobile = useIsMobile(768);
+
+  const longPressHandlers = useLongPress({
+    disabled: !deletable || !isMobile,
+    delay: 650,
+    onLongPress: (e) => {
+      const target = e?.target;
+      if (target?.closest?.('[data-no-long-press="true"]')) return;
+      if (!confirm('确定删除该任务吗？')) return;
+      onDelete();
+    },
+  });
+
+  return (
+    <div
+      className={`group relative bg-white p-5 rounded-2xl border transition-all hover:shadow-md ${
+        task.status === 'completed' ? 'border-green-200 bg-green-50' : 'border-slate-100'
+      }`}
+      {...longPressHandlers}
+      onContextMenu={(e) => e.preventDefault()}
+    >
+      <div className="flex justify-between items-start">
+        <div className="flex gap-4">
+          <div className={`p-3 rounded-xl ${getTypeColor(task.type)}`}>
+            <Sword size={24} />
+          </div>
+          <div>
+            <h3 className={`font-bold text-lg ${task.status === 'archived' ? 'line-through  text-slate-500' : 'text-slate-500'}`}>
+              {task.title}
+            </h3>
+            <div className="flex flex-wrap gap-2 mt-2">
+              <Badge icon={Star} text={`${task.difficulty} | ${task.skill}`} color="bg-amber-50 text-amber-600" />
+              <Badge icon={Clock} text={task.deadline || '无期限'} color="bg-slate-50 placeholder:text-slate-300 text-slate-500" />
+              <span className="text-xs font-bold text-indigo-500 bg-indigo-50 px-2 py-1 rounded">
+                EXP +{task.exp} | GOLD +{task.gold}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* 操作按钮（仅“进行中”标签展示） */}
+        {deletable && (
+          <div className="flex items-start gap-2">
+            {/* 桌面端删除按钮；移动端用长按 */}
+            <button
+              type="button"
+              onClick={() => {
+                if (!confirm('确定删除该任务吗？')) return;
+                onDelete();
+              }}
+              data-no-long-press="true"
+              className="hidden md:inline-flex p-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-600 hover:bg-slate-100 transition-all mt-0.5"
+              aria-label="删除任务"
+            >
+              <Trash2 size={16} />
+            </button>
+
+            <button
+              type="button"
+              onClick={onClaim}
+              data-no-long-press="true"
+              className={`px-4 py-2 rounded-xl font-bold transition-all ${
+                task.status === 'completed'
+                  ? 'bg-green-500 text-white'
+                  : 'bg-slate-100 text-slate-400 hover:bg-indigo-100 hover:text-indigo-600'
+              }`}
+            >
+              {task.status === 'completed' ? '归档' : '完成任务'}
+            </button>
+          </div>
+        )}
+      </div>
+
+      {task.finishedAt && (
+        <div className="mt-3 pt-3 border-t border-dashed border-slate-200 text-xs text-slate-400">
+          完成时间：{new Date(task.finishedAt).toLocaleString()}
+        </div>
+      )}
     </div>
   );
 }

@@ -5,8 +5,12 @@ import { Plus, MoreVertical, LayoutGrid, Sword, User, ShoppingBag, Trophy } from
 import Link from 'next/link';
 
 export default function Dashboard() {
-  const { user } = useGameStore();
+  const { user, tasks } = useGameStore();
   const [menuOpen, setMenuOpen] = useState(false);
+
+  const activeTasks = tasks
+    .filter((t) => t.status !== "archived")
+    .slice(0, 6); // 首页只展示少量，避免拥挤
 
   return (
     <div className="w-full space-y-6">
@@ -61,11 +65,45 @@ export default function Dashboard() {
         <StatCard label="巅峰技能" value={user.stats?.highestSkill || "新手"} color="text-purple-600" />
       </div>
 
-      {/* 创建任务大按钮 */}
-      <Link href="/tasks" className="flex items-center justify-center gap-2 w-full py-6 bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-3xl font-black text-xl shadow-xl hover:shadow-indigo-200 transition-all active:scale-95">
-        <Plus size={28} />
-        任务大厅
-      </Link>
+      {/* 进行中的任务（显示在任务大厅按钮下方） */}
+      {activeTasks.length > 0 && (
+        <div className="bg-white p-4 rounded-3xl border border-slate-100 shadow-sm">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="font-black text-slate-800 text-sm flex items-center gap-2">
+              <span className="inline-flex w-2 h-2 rounded-full bg-indigo-500" />
+              进行中的任务（{tasks.filter((t) => t.status !== "archived").length}）
+            </h3>
+            <Link href="/tasks" className="text-xs font-bold text-indigo-600 hover:text-indigo-700">
+              去任务大厅
+            </Link>
+          </div>
+
+          <div className="space-y-2">
+            {activeTasks.map((t) => (
+              <Link
+                key={t.id}
+                href="/tasks"
+                className="flex items-start justify-between gap-3 p-3 rounded-2xl border border-slate-100 hover:border-indigo-200 transition-all"
+              >
+                <div className="min-w-0">
+                  <div className="text-sm font-black text-slate-800 truncate">{t.title}</div>
+                  <div className="text-[11px] text-slate-500 mt-1 flex flex-wrap gap-x-2 gap-y-1">
+                    <span>
+                      {t.status === "completed" ? "已完成" : "进行中"} · {t.difficulty}
+                    </span>
+                    <span className="text-slate-400">|</span>
+                    <span>技能：{t.skill}</span>
+                  </div>
+                </div>
+                <div className="text-right shrink-0">
+                  <div className="text-xs font-black text-indigo-600">+{t.exp} EXP</div>
+                  <div className="text-[11px] font-bold text-amber-600">+{t.gold} 💰</div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* 最近成就 */}
       <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">

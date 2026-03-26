@@ -5,7 +5,7 @@ import { Plus, Trophy, CheckCircle, Lock } from 'lucide-react';
 import clsx from 'clsx';
 
 export default function AchievementPage() {
-  const { achievements, completeAchievement, addCustomAchievement } = useGameStore();
+  const { achievements, completeAchievement, cancelAchievement, addCustomAchievement } = useGameStore();
   const [showAdd, setShowAdd] = useState(false);
   const [newTitle, setNewTitle] = useState('');
 
@@ -40,7 +40,16 @@ export default function AchievementPage() {
           return (
             <div
               key={ach.id}
-              onClick={() => !isDone && completeAchievement(ach.id)}
+              onClick={() => {
+                if (!isDone) {
+                  completeAchievement(ach.id);
+                  return;
+                }
+
+                const ok = confirm('确定取消该成就吗？将扣除对应奖励金币。');
+                if (!ok) return;
+                cancelAchievement(ach.id);
+              }}
               className={clsx(
                 "group relative p-6 rounded-[32px] border-4 transition-all duration-300 cursor-pointer flex flex-col items-center text-center",
                 isDone 
@@ -70,6 +79,9 @@ export default function AchievementPage() {
                   <div className="text-green-500 font-bold text-[10px] flex flex-col items-center">
                     <CheckCircle size={14} className="mb-1" />
                     {ach.date}
+                    <span className="text-red-500 font-black text-[9px] mt-1">
+                      点击取消
+                    </span>
                   </div>
                 ) : (
                   <div className="text-slate-400 font-bold text-[10px] flex flex-col items-center group-hover:text-slate-600">

@@ -1,8 +1,10 @@
 "use client";
 import { useState } from 'react';
 import useGameStore from '@/store/useGameStore';
-import { ShoppingCart, Package, RefreshCw, Utensils, Gamepad2, Film, Gift, Plus } from 'lucide-react';
+import { ShoppingCart, Package, RefreshCw, Utensils, Gamepad2, Film, Gift, Plus, Trash2 } from 'lucide-react';
 import RewardModal from '@/components/shop/RewardModal';
+import useIsMobile from '@/hooks/useIsMobile';
+import useLongPress from '@/hooks/useLongPress';
 
 const TYPE_ICONS = {
   '美食': { icon: Utensils, color: 'text-orange-500', bg: 'bg-orange-100' },
@@ -12,7 +14,7 @@ const TYPE_ICONS = {
 };
 
 export default function RewardShop() {
-  const { rewards, user, redeem } = useGameStore();
+  const { rewards, user, redeem, deleteReward } = useGameStore();
   const [isModalOpen, setModalOpen] = useState(false);
 
   return (
@@ -45,54 +47,103 @@ export default function RewardShop() {
             <p className="text-slate-400">货架空空如也，快去上架一些奖励激励自己吧！</p>
           </div>
         ) : (
-          rewards.map((item) => {
-            const Config = TYPE_ICONS[item.category] || TYPE_ICONS['实物'];
-            return (
-              <div key={item.id} className="bg-white rounded-3xl p-5 border border-slate-100 shadow-sm flex flex-col justify-between">
-                <div>
-                  <div className="flex justify-between items-start mb-4">
-                    <div className={`p-3 rounded-2xl ${Config.bg} ${Config.color}`}>
-                      <Config.icon size={24} />
-                    </div>
-                    <div className="text-right">
-                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{item.frequency}更新</span>
-                      <div className="text-xl font-black text-amber-500">{item.price} 💰</div>
-                    </div>
-                  </div>
-
-                  <h4 className="text-lg font-black text-slate-800">{item.name}</h4>
-                  <p className="text-sm text-slate-400 mt-1 mb-4">{item.remark || "暂无备注"}</p>
-                  
-                  <div className="grid grid-cols-2 gap-2 mb-6">
-                    <div className="bg-slate-50 placeholder:text-slate-300 p-2 rounded-xl text-center">
-                      <div className="text-[10px] text-slate-400 font-bold">剩余库存</div>
-                      <div className="font-black text-slate-700">{item.stock}</div>
-                    </div>
-                    <div className="bg-slate-50 placeholder:text-slate-300 p-2 rounded-xl text-center">
-                      <div className="text-[10px] text-slate-400 font-bold">已兑换</div>
-                      <div className="font-black text-slate-700">{item.redeemedCount}</div>
-                    </div>
-                  </div>
-                </div>
-
-                <button 
-                  onClick={() => redeem(item.id)}
-                  disabled={user.gold < item.price || item.stock <= 0}
-                  className={`w-full py-4 rounded-2xl font-black transition-all shadow-md active:scale-95 ${
-                    user.gold >= item.price && item.stock > 0
-                    ? 'bg-slate-900 text-white hover:bg-indigo-600 shadow-indigo-100'
-                    : 'bg-slate-100 text-slate-300 cursor-not-allowed shadow-none'
-                  }`}
-                >
-                  {item.stock <= 0 ? '已售罄' : '立即兑换'}
-                </button>
-              </div>
-            );
-          })
+          rewards.map((item) => (
+            <RewardCard
+              key={item.id}
+              item={item}
+              Config={TYPE_ICONS[item.category] || TYPE_ICONS["实物"]}
+              gold={user.gold}
+              onRedeem={() => redeem(item.id)}
+              onDelete={() => deleteReward(item.id)}
+            />
+          ))
         )}
       </div>
 
       <RewardModal isOpen={isModalOpen} onClose={() => setModalOpen(false)} />
+    </div>
+  );
+}
+
+function RewardCard({ item, Config, gold, onRedeem, onDelete }) {
+  const isMobile = useIsMobile(768);
+
+  const longPressHandlers = useLongPress({
+    disabled: !isMobile,
+    delay: 650,
+    onLongPress: (e) => {
+      const target = e?.target;
+      if (target?.closest?.('[data-no-long-press="true"]')) return;
+      if (!confirm(`确定删除奖励「${item.name}」吗？`)) return;
+      onDelete();
+    },
+  });
+
+  const canRedeem = gold >= item.price && item.stock > 0;
+
+  return (
+    <div
+      className="bg-white rounded-3xl p-5 border border-slate-100 shadow-sm flex flex-col justify-between relative"
+      {...longPressHandlers}
+      onContextMenu={(e) => e.preventDefault()}
+    >
+      <div>
+        <div className="flex justify-between items-start mb-4">
+          <div className={`p-3 rounded-2xl ${Config.bg} ${Config.color}`}>
+            <Config.icon size={24} />
+          </div>
+          <div className="flex items-start gap-3">
+            <div className="text-right">
+              <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                {item.frequency}更新
+              </span>
+              <div className="text-xl font-black text-amber-500">{item.price} 💰</div>
+            </div>
+
+            {/* 桌面端删除按钮；移动端用长按 */}
+            <button
+              type="button"
+              onClick={() => {
+                if (!confirm(`确定删除奖励「${item.name}」吗？`)) return;
+                onDelete();
+              }}
+              data-no-long-press="true"
+              className="hidden md:inline-flex p-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-600 hover:bg-slate-100 transition-all mt-0.5"
+              aria-label="删除奖励"
+            >
+              <Trash2 size={16} />
+            </button>
+          </div>
+        </div>
+
+        <h4 className="text-lg font-black text-slate-800">{item.name}</h4>
+        <p className="text-sm text-slate-400 mt-1 mb-4">{item.remark || "暂无备注"}</p>
+
+        <div className="grid grid-cols-2 gap-2 mb-6">
+          <div className="bg-slate-50 placeholder:text-slate-300 p-2 rounded-xl text-center">
+            <div className="text-[10px] text-slate-400 font-bold">剩余库存</div>
+            <div className="font-black text-slate-700">{item.stock}</div>
+          </div>
+          <div className="bg-slate-50 placeholder:text-slate-300 p-2 rounded-xl text-center">
+            <div className="text-[10px] text-slate-400 font-bold">已兑换</div>
+            <div className="font-black text-slate-700">{item.redeemedCount}</div>
+          </div>
+        </div>
+      </div>
+
+      <button
+        type="button"
+        onClick={onRedeem}
+        disabled={!canRedeem}
+        data-no-long-press="true"
+        className={`w-full py-4 rounded-2xl font-black transition-all shadow-md active:scale-95 ${
+          canRedeem
+            ? "bg-slate-900 text-white hover:bg-indigo-600 shadow-indigo-100"
+            : "bg-slate-100 text-slate-300 cursor-not-allowed shadow-none"
+        }`}
+      >
+        {item.stock <= 0 ? "已售罄" : "立即兑换"}
+      </button>
     </div>
   );
 }

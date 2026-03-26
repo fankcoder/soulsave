@@ -49,18 +49,6 @@ const useGameStore = create(
           deadline: '每日' 
         },
         { 
-          id: 'task-003', 
-          title: '整理桌面与电子文件夹', 
-          status: 'pending', 
-          type: '可选', 
-          difficulty: '简单', 
-          skill: '收纳整理', 
-          skillId: 'organization-storage', 
-          exp: 5, 
-          gold: 1, 
-          deadline: '' 
-        },
-        { 
           id: 'task-004', 
           title: '复盘今日工作/学习得失', 
           status: 'pending', 
@@ -119,73 +107,26 @@ const useGameStore = create(
           exp: 20, 
           gold: 5, 
           deadline: '' 
-        },
-        { 
-          id: 'task-009', 
-          title: '独立完成一个功能模块的代码重构', 
-          status: 'pending', 
-          type: '主线', 
-          difficulty: '困难', 
-          skill: '编程开发', 
-          skillId: 'coding-automation', 
-          exp: 20, 
-          gold: 5, 
-          deadline: '' 
-        },
-        { 
-          id: 'task-010', 
-          title: '进行 10 分钟冥想', 
-          status: 'pending', 
-          type: '日常', 
-          difficulty: '简单', 
-          skill: '冥想内省', 
-          skillId: 'meditation-insight', 
-          exp: 5, 
-          gold: 1, 
-          deadline: '' 
         }
       ],
       skills: [
         // --- 核心主线 ---
         { id: 'physical-fitness', name: '身体素质', level: 1, exp: 0, category: '核心主线' },
         { id: 'emotional-resilience', name: '情绪管理', level: 1, exp: 0, category: '核心主线' },
-        { id: 'wealth-management', name: '理财能力', level: 1, exp: 0, category: '核心主线' },
-        { id: 'social-intuition', name: '社交直觉', level: 1, exp: 0, category: '核心主线' },
-        { id: 'core-values', name: '核心价值观', level: 1, exp: 0, category: '核心主线' },
-        { id: 'image-branding', name: '形象管理', level: 1, exp: 0, category: '核心主线' },
+        { id: 'social-intuition', name: '社交能力', level: 1, exp: 0, category: '核心主线' },
         { id: 'adversity-quotient', name: '逆商 (AQ)', level: 1, exp: 0, category: '核心主线' },
-        { id: 'long-termism', name: '长期主义', level: 1, exp: 0, category: '核心主线' },
-        { id: 'safety-awareness', name: '安全意识', level: 1, exp: 0, category: '核心主线' },
-        { id: 'family-bonds', name: '家庭纽带', level: 1, exp: 0, category: '核心主线' },
 
         // --- 认知与自律 ---
         { id: 'focus-power', name: '专注力', level: 1, exp: 0, category: '认知与自律' },
-        { id: 'logical-reasoning', name: '逻辑推理', level: 1, exp: 0, category: '认知与自律' },
-        { id: 'info-filtering', name: '信息筛选', level: 1, exp: 0, category: '认知与自律' },
         { id: 'reflection-habit', name: '复盘习惯', level: 1, exp: 0, category: '认知与自律' },
-        { id: 'time-granularity', name: '时间颗粒度', level: 1, exp: 0, category: '认知与自律' },
-        { id: 'metacognition', name: '元认知', level: 1, exp: 0, category: '认知与自律' },
         { id: 'structured-expression', name: '结构化表达', level: 1, exp: 0, category: '认知与自律' },
-        { id: 'stress-decision', name: '抗压决策', level: 1, exp: 0, category: '认知与自律' },
         { id: 'sleep-management', name: '睡眠管理', level: 1, exp: 0, category: '认知与自律' },
-        { id: 'meditation-insight', name: '冥想内省', level: 1, exp: 0, category: '认知与自律' },
-        { id: 'critical-thinking', name: '批判性思维', level: 1, exp: 0, category: '认知与自律' },
-        { id: 'curiosity-exploration', name: '好奇心', level: 1, exp: 0, category: '认知与自律' },
-        { id: 'execution-force', name: '执行力', level: 1, exp: 0, category: '认知与自律' },
-        { id: 'mnemonics', name: '记忆术', level: 1, exp: 0, category: '认知与自律' },
-        { id: 'rapid-learning', name: '快速学习', level: 1, exp: 0, category: '认知与自律' },
 
         // --- 生活技能 ---
         { id: 'nutritional-cooking', name: '营养烹饪', level: 1, exp: 0, category: '生活技能' },
         { id: 'organization-storage', name: '收纳整理', level: 1, exp: 0, category: '生活技能' },
         { id: 'first-aid', name: '急救常识', level: 1, exp: 0, category: '生活技能' },
-        { id: 'electronics-repair', name: '电子维修', level: 1, exp: 0, category: '生活技能' },
-        { id: 'clothing-care', name: '衣物护理', level: 1, exp: 0, category: '生活技能' },
-        { id: 'home-maintenance', name: '家居维护', level: 1, exp: 0, category: '生活技能' },
         { id: 'driving-travel', name: '驾驶出行', level: 1, exp: 0, category: '生活技能' },
-        { id: 'deep-sleep-setup', name: '环境优化', level: 1, exp: 0, category: '生活技能' },
-        { id: 'search-techniques', name: '搜索技巧', level: 1, exp: 0, category: '生活技能' },
-        { id: 'pet-plant-care', name: '生命护理', level: 1, exp: 0, category: '生活技能' },
 
         // --- 职业技能 ---
         { id: 'coding-automation', name: '编程开发', level: 1, exp: 0, category: '职业技能' },
@@ -199,28 +140,18 @@ const useGameStore = create(
         { id: 'data-analysis', name: '数据分析', level: 1, exp: 0, category: '职业技能' },
         { id: 'collaboration-tools', name: '协作工具', level: 1, exp: 0, category: '职业技能' },
         { id: 'sales-marketing', name: '销售技巧', level: 1, exp: 0, category: '职业技能' },
-        { id: 'public-relations', name: '公共关系', level: 1, exp: 0, category: '职业技能' },
         { id: 'teaching-coaching', name: '教学教练', level: 1, exp: 0, category: '职业技能' },
-        { id: 'market-sensitivity', name: '市场敏感度', level: 1, exp: 0, category: '职业技能' },
-        { id: 'financial-literacy', name: '财报阅读', level: 1, exp: 0, category: '职业技能' },
         { id: 'ai-prompt-engineering', name: 'AI 应用', level: 1, exp: 0, category: '职业技能' },
       ],
       rewards: [// 存储商品列表
         // --- 1. 瞬时多巴胺 (低价位: 5-20 金币) ---
         { id: 'r-001', name: '刷 15 分钟短视频', price: 5, category: '娱乐', stock: 99 },
         { id: 'r-002', name: '1小时游戏时间', price: 10, category: '娱乐', stock: 8 },
-        { id: 'r-003', name: '购买一首喜欢的单曲', price: 10, category: '娱乐', stock: 99 },
         { id: 'r-004', name: '发呆/放空 10 分钟', price: 5, category: '放松', stock: 99 },
         { id: 'r-005', name: '在群里发一个闲聊话题', price: 5, category: '社交', stock: 99 },
-        { id: 'r-006', name: '玩一局轻量消消乐/小游戏', price: 10, category: '娱乐', stock: 99 },
-        { id: 'r-007', name: '购买一个精美的电子壁纸', price: 10, category: '数字', stock: 99 },
-        { id: 'r-008', name: '喝一杯冰镇可乐/苏打水', price: 15, category: '饮食', stock: 99 },
-        { id: 'r-009', name: '随意翻看 10 分钟杂志/漫画', price: 15, category: '放松', stock: 99 },
-        { id: 'r-010', name: '获得一次“赖床 10 分钟”券', price: 20, category: '休息', stock: 99 },
-        { id: 'r-011', name: '给自己的虚拟角色买个小配饰', price: 10, category: '数字', stock: 99 },
-        { id: 'r-012', name: '享受一次 5 分钟的筋膜枪按摩', price: 10, category: '健康', stock: 99 },
+        { id: 'r-006', name: '玩一局轻量消消乐/小游戏', price: 2, category: '娱乐', stock: 99 },
+        { id: 'r-008', name: '喝一杯冰镇可乐/苏打水', price: 5, category: '饮食', stock: 99 },
         { id: 'r-013', name: '在社交平台发布一张精修图', price: 15, category: '社交', stock: 99 },
-        { id: 'r-014', name: '购买一份虚拟勋章/挂件', price: 20, category: '数字', stock: 99 },
         { id: 'r-015', name: '听一段解压的 ASMR', price: 10, category: '放松', stock: 99 },
 
         // --- 2. 生活仪式感 (中价位: 30-100 金币) ---
@@ -229,14 +160,7 @@ const useGameStore = create(
         { id: 'r-018', name: '购买一本心仪的纸质书', price: 50, category: '学习', stock: 99 },
         { id: 'r-019', name: '点一份豪华版单人套餐', price: 80, category: '饮食', stock: 99 },
         { id: 'r-020', name: '去电玩城抓一次娃娃/玩游戏', price: 40, category: '娱乐', stock: 99 },
-        { id: 'r-021', name: '购买一套喜欢的表情包', price: 30, category: '数字', stock: 99 },
-        { id: 'r-022', name: '给自己买一束鲜花', price: 45, category: '生活', stock: 99 },
-        { id: 'r-023', name: '打车代步一次（短途）', price: 30, category: '生活', stock: 99 },
         { id: 'r-024', name: '升级一个 App 的去广告会员', price: 50, category: '数字', stock: 99 },
-        { id: 'r-025', name: '奖励自己一次 30 分钟午睡', price: 30, category: '休息', stock: 99 },
-        { id: 'r-026', name: '购买一个高颜值的笔记本', price: 40, category: '办公', stock: 99 },
-        { id: 'r-027', name: '去猫咖/狗咖撸猫一小时', price: 70, category: '娱乐', stock: 99 },
-        { id: 'r-028', name: '购买一个正版手机壳', price: 35, category: '生活', stock: 99 },
         { id: 'r-029', name: '享受一次专业洗剪吹', price: 80, category: '形象', stock: 99 },
         { id: 'r-030', name: '奖励自己一次不设闹钟的觉', price: 100, category: '休息', stock: 99 },
 
@@ -245,16 +169,13 @@ const useGameStore = create(
         { id: 'r-032', name: '一套心仪已久的护肤品', price: 450, category: '形象', stock: 99 },
         { id: 'r-033', name: '新款 3A 游戏大作一份', price: 400, category: '娱乐', stock: 99 },
         { id: 'r-034', name: '周边商城手办一个', price: 350, category: '收藏', stock: 99 },
-        { id: 'r-035', name: '一套舒适的高质量睡衣', price: 200, category: '生活', stock: 99 },
         { id: 'r-036', name: '购买专业运动装备/跑鞋', price: 500, category: '健康', stock: 99 },
         { id: 'r-037', name: '付费课程/工作坊门票', price: 400, category: '成长', stock: 99 },
         { id: 'r-038', name: '一次全身按摩/足疗', price: 280, category: '放松', stock: 99 },
-        { id: 'r-039', name: '购买一个高质量机械键盘', price: 500, category: '办公', stock: 99 },
+        { id: 'r-039', name: '购买一个高质量数码周边', price: 500, category: '办公', stock: 99 },
         { id: 'r-040', name: '心仪的潮牌 T 恤一件', price: 300, category: '形象', stock: 99 },
-        { id: 'r-041', name: '小型智能家电（如破壁机）', price: 350, category: '生活', stock: 99 },
         { id: 'r-042', name: '主题公园门票一张', price: 400, category: '娱乐', stock: 99 },
         { id: 'r-043', name: '一次短途近郊自驾游', price: 450, category: '旅行', stock: 99 },
-        { id: 'r-044', name: '购买一款高级香水/香薰', price: 400, category: '生活', stock: 99 },
         { id: 'r-045', name: '奖励一次“全天拒绝社交”', price: 200, category: '自由', stock: 99 },
 
         // --- 4. 终极梦想 (顶级价位: 1000+ 金币) ---
@@ -267,12 +188,6 @@ const useGameStore = create(
         { id: 'r-052', name: '高档品牌皮包/手表', price: 4000, category: '形象', stock: 1 },
         { id: 'r-053', name: '人体工学椅顶配款', price: 1800, category: '办公', stock: 1 },
         { id: 'r-054', name: '演唱会/音乐节前排门票', price: 1200, category: '娱乐', stock: 3 },
-        { id: 'r-055', name: '全屋智能家居系统升级', price: 3500, category: '生活', stock: 1 },
-        { id: 'r-056', name: '奖励自己“离职/休假底气金”', price: 10000, category: '自由', stock: 1 },
-        { id: 'r-057', name: '定制西装/高级礼服一套', price: 3000, category: '形象', stock: 1 },
-        { id: 'r-058', name: '顶级降噪耳机 (如 Sony/Bose)', price: 1500, category: '科技', stock: 1 },
-        { id: 'r-059', name: '星级酒店总统套房体验', price: 2800, category: '旅行', stock: 1 },
-        { id: 'r-060', name: '获得“彻底休息一周”权限', price: 5000, category: '自由', stock: 99 },
       ],
       addItems: (newTask) => set((state) => ({
         tasks: [
@@ -284,6 +199,11 @@ const useGameStore = create(
           }, 
           ...state.tasks
         ]
+      })),
+
+      // 删除任务（用于“任务大厅”进行中任务的管理）
+      deleteTask: (taskId) => set((state) => ({
+        tasks: state.tasks.filter((t) => String(t.id) !== String(taskId)),
       })),
 
       // 领取奖励并移入历史
@@ -466,6 +386,11 @@ const useGameStore = create(
           ...state.skills
         ]
       })),
+
+      // 删除技能（用于“技能树/属性面板”的管理）
+      deleteSkill: (skillId) => set((state) => ({
+        skills: state.skills.filter((s) => String(s.id) !== String(skillId)),
+      })),
       
       // 添加商品
       addReward: (newReward) => set((state) => ({
@@ -478,6 +403,11 @@ const useGameStore = create(
           }, 
           ...state.rewards
         ]
+      })),
+
+      // 删除商店奖励（用于“奖励兑换商店”的管理）
+      deleteReward: (rewardId) => set((state) => ({
+        rewards: state.rewards.filter((r) => String(r.id) !== String(rewardId)),
       })),
       // 兑换逻辑
       redeem: (rewardId) => set((state) => {
@@ -580,6 +510,38 @@ const useGameStore = create(
         });
 
         set({ achievements: updated });
+      },
+
+      // 撤销成就：回滚“已完成”并扣除对应金币
+      cancelAchievement: (id) => {
+        const today = '-';
+        const rewards = { '普通': 10, '稀有': 50, '史诗': 200, '传说': 1000 };
+
+        set((state) => {
+          const ach = state.achievements.find((a) => String(a.id) === String(id));
+          if (!ach) return state;
+          if (ach.status !== '已完成') return state;
+
+          const bonus = rewards[ach.rarity] || 10;
+          const currentGold = Number(state.user?.gold) || 0;
+          const nextGold = currentGold - bonus;
+
+          if (nextGold < 0) {
+            alert(`撤销失败：当前金币不足以扣除 ${bonus} 💰。`);
+            return state;
+          }
+
+          return {
+            user: {
+              ...state.user,
+              gold: nextGold,
+            },
+            achievements: state.achievements.map((a) => {
+              if (String(a.id) !== String(id)) return a;
+              return { ...a, status: '未完成', date: today };
+            }),
+          };
+        });
       },
 
       // 2. 自定义添加成就的动作
