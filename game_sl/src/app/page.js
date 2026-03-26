@@ -13,31 +13,31 @@ export default function HomePage() {
   const { resetAllData, exportGameData, importGameData } = useGameStore();
   const fileInputRef = useRef(null);
 
-  // useEffect(() => {
-  //   // 监听浏览器的安装提示事件
-  //   window.addEventListener('beforeinstallprompt', (e) => {
-  //     e.preventDefault();
-  //     setDeferredPrompt(e); // 保存事件对象
-  //     setShowInstallBanner(true); // 显示自定义安装按钮
-  //   });
+  useEffect(() => {
+    // 监听浏览器的安装提示事件
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      setDeferredPrompt(e); // 保存事件对象
+      setShowInstallBanner(true); // 显示自定义安装按钮
+    });
 
-  //   // 如果已经安装了，隐藏按钮
-  //   window.addEventListener('appinstalled', () => {
-  //     setShowInstallBanner(false);
-  //     setDeferredPrompt(null);
-  //   });
-  // }, []);
+    // 如果已经安装了，隐藏按钮
+    window.addEventListener('appinstalled', () => {
+      setShowInstallBanner(false);
+      setDeferredPrompt(null);
+    });
+  }, []);
 
-  // const handleInstallClick = async () => {
-  //   if (!deferredPrompt) return;
-  //   deferredPrompt.prompt(); // 弹出系统安装菜单
-  //   const { outcome } = await deferredPrompt.userChoice;
-  //   if (outcome === 'accepted') {
-  //     console.log('用户接受了安装');
-  //   }
-  //   setDeferredPrompt(null);
-  //   setShowInstallBanner(false);
-  // };
+  const handleInstallClick = async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt(); // 弹出系统安装菜单
+    const { outcome } = await deferredPrompt.userChoice;
+    if (outcome === 'accepted') {
+      console.log('用户接受了安装');
+    }
+    setDeferredPrompt(null);
+    // setShowInstallBanner(false);
+  };
 
   return (
     <div className="relative min-h-screen">
@@ -118,7 +118,7 @@ export default function HomePage() {
             <span className="text-xs font-bold">导入数据(JSON)</span>
           </button>
           <button 
-            onClick={() => setShowInstallBanner(false)}
+            onClick={handleInstallClick}
             className="flex flex-col items-center justify-center p-4 bg-slate-50 text-slate-700 rounded-2xl hover:bg-slate-100 transition-all border-2 border-transparent active:border-slate-300"
           >
             <span className="text-xs font-bold">安装 GameLife 轻量版App</span>
