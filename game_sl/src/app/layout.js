@@ -6,9 +6,13 @@ export const metadata = {
   title: "人生存档",
   description: "将你的生活数字化、游戏化",
   manifest: "/manifest.json", // 引用配置文件
-  themeColor: "#0f172a",
   viewport: "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0",
 };
+
+export const viewport = {
+  themeColor: "#0f172a",
+
+}
 
 export default function RootLayout({ children }) {
   return (
