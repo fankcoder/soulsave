@@ -412,8 +412,8 @@ const useGameStore = create(
       // 兑换逻辑
       redeem: (rewardId) => set((state) => {
         const reward = state.rewards.find(r => r.id === rewardId);
-        if (!reward || state.user.gold < reward.price || reward.stock <= 0) {
-          alert("金币不足或库存见底！继续去肝任务吧！");
+        if (!reward || state.user.gold < reward.price) {
+          alert("金币不足！继续去肝任务吧！");
           return state;
         }
 
@@ -425,7 +425,6 @@ const useGameStore = create(
           rewards: state.rewards.map(r => 
             r.id === rewardId ? { 
               ...r, 
-              stock: r.stock - 1, 
               redeemedCount: r.redeemedCount + 1,
               totalSpent: r.totalSpent + r.price
             } : r

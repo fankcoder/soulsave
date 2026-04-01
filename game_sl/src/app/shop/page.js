@@ -79,7 +79,7 @@ function RewardCard({ item, Config, gold, onRedeem, onDelete }) {
     },
   });
 
-  const canRedeem = gold >= item.price && item.stock > 0;
+  const canRedeem = gold >= item.price;
 
   return (
     <div
@@ -122,11 +122,11 @@ function RewardCard({ item, Config, gold, onRedeem, onDelete }) {
         <div className="grid grid-cols-2 gap-2 mb-6">
           <div className="bg-slate-50 placeholder:text-slate-300 p-2 rounded-xl text-center">
             <div className="text-[10px] text-slate-400 font-bold">剩余库存</div>
-            <div className="font-black text-slate-700">{item.stock}</div>
+            <div className="font-black text-slate-700">{Math.max(0, item.stock - (item.redeemedCount || 0))}</div>
           </div>
           <div className="bg-slate-50 placeholder:text-slate-300 p-2 rounded-xl text-center">
             <div className="text-[10px] text-slate-400 font-bold">已兑换</div>
-            <div className="font-black text-slate-700">{item.redeemedCount}</div>
+            <div className="font-black text-slate-700">{item.redeemedCount || 0}</div>
           </div>
         </div>
       </div>
@@ -142,7 +142,7 @@ function RewardCard({ item, Config, gold, onRedeem, onDelete }) {
             : "bg-slate-100 text-slate-300 cursor-not-allowed shadow-none"
         }`}
       >
-        {item.stock <= 0 ? "已售罄" : "立即兑换"}
+        立即兑换
       </button>
     </div>
   );
