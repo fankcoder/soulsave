@@ -10,8 +10,9 @@ const DIFFICULTY_MAP = {
 
 export default function TaskModal({ isOpen, onClose }) {
   const addTask = useGameStore(state => state.addItems);
+  const skills = useGameStore(state => state.skills);
   const [form, setForm] = useState({
-    title: '', type: '日常', difficulty: '简单', skill: '编程', deadline: ''
+    title: '', type: '日常', difficulty: '简单', skill: '', skillId: '', deadline: ''
   });
 
   if (!isOpen) return null;
@@ -20,6 +21,16 @@ export default function TaskModal({ isOpen, onClose }) {
     const rewards = DIFFICULTY_MAP[form.difficulty];
     addTask({ ...form, ...rewards });
     onClose();
+  };
+
+  const handleSkillChange = (e) => {
+    const selectedSkillId = e.target.value;
+    const selectedSkill = skills.find(s => s.id === selectedSkillId);
+    if (selectedSkill) {
+      setForm({...form, skill: selectedSkill.name, skillId: selectedSkill.id});
+    } else {
+      setForm({...form, skill: '', skillId: ''});
+    }
   };
 
   return (
@@ -54,7 +65,16 @@ export default function TaskModal({ isOpen, onClose }) {
 
           <div>
             <label className="text-xs font-bold text-slate-400 ml-1">关联技能</label>
-            <input className="w-full p-3 bg-slate-50 text-slate-900 placeholder:text-slate-300 rounded-xl outline-none" placeholder="如：外语水平, 编程..." onChange={(e) => setForm({...form, skill: e.target.value})} />
+            <select 
+              className="w-full p-3 bg-slate-50 text-slate-900 rounded-xl outline-none" 
+              onChange={handleSkillChange}
+              value={form.skillId}
+            >
+              <option value="">选择技能</option>
+              {skills.map(skill => (
+                <option key={skill.id} value={skill.id}>{skill.name}</option>
+              ))}
+            </select>
           </div>
 
           <button 

@@ -17,6 +17,25 @@ export const viewport = {
 export default function RootLayout({ children }) {
   return (
     <html lang="zh">
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              if ('serviceWorker' in navigator) {
+                window.addEventListener('load', function() {
+                  navigator.serviceWorker.register('/sw.js')
+                    .then(function(registration) {
+                      console.log('SW registered: ', registration);
+                    })
+                    .catch(function(registrationError) {
+                      console.log('SW registration failed: ', registrationError);
+                    });
+                });
+              }
+            `,
+          }}
+        />
+      </head>
       <body className="bg-slate-50 placeholder:text-slate-300 text-slate-900 antialiased">
         <div className="flex flex-col md:flex-row min-h-screen">
           {/* 导航栏 - 内部处理移动端/桌面端显示 */}
